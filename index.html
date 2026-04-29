@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>APCS Lab – Code Notebook Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0f1a;--surface:#13162b;--surface2:#1a1e38;
+  --accent:#7c6ef7;--accent2:#a78bfa;--accent3:#38bdf8;
+  --text:#e2e8f0;--muted:#8892b0;--border:#252945;
+  --green:#22c55e;--red:#f87171;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+
+/* ── HEADER ── */
+.hero{
+  text-align:center;padding:60px 20px 30px;
+  background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(124,110,247,.18) 0%,transparent 70%);
+}
+.hero-badge{display:inline-block;background:rgba(124,110,247,.15);border:1px solid rgba(124,110,247,.35);
+  color:var(--accent2);border-radius:999px;padding:4px 14px;font-size:.75rem;font-weight:600;letter-spacing:.07em;margin-bottom:18px}
+.hero h1{font-size:clamp(1.8rem,5vw,3rem);font-weight:800;
+  background:linear-gradient(135deg,#fff 30%,var(--accent2) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{color:var(--muted);margin-top:10px;font-size:.95rem}
+.stats{display:flex;justify-content:center;gap:28px;margin-top:28px;flex-wrap:wrap}
+.stat{text-align:center}
+.stat-n{font-size:1.6rem;font-weight:800;color:var(--accent2)}
+.stat-l{font-size:.7rem;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
+
+/* ── LINK CARDS ── */
+.link-grid{max-width:720px;margin:40px auto;padding:0 20px;display:flex;flex-direction:column;gap:12px}
+.link-card{
+  display:flex;align-items:center;gap:14px;
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:16px 20px;cursor:pointer;text-decoration:none;color:inherit;
+  transition:transform .2s,border-color .2s,box-shadow .2s;
+}
+.link-card:hover{transform:translateY(-2px);border-color:var(--accent);
+  box-shadow:0 0 20px rgba(124,110,247,.2)}
+.lc-icon{font-size:1.6rem;flex-shrink:0;width:40px;text-align:center}
+.lc-info{flex:1;min-width:0}
+.lc-title{display:block;font-weight:600;font-size:.95rem}
+.lc-desc{display:block;font-size:.75rem;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lc-arrow{width:18px;height:18px;stroke:var(--accent);fill:none;stroke-width:2.5;flex-shrink:0}
+
+/* ── DIVIDER ── */
+.divider{text-align:center;padding:10px 0 30px;color:var(--muted);font-size:.8rem;letter-spacing:.08em;text-transform:uppercase}
+
+/* ── NOTEBOOK SECTIONS ── */
+.sections{max-width:860px;margin:0 auto;padding:0 20px 80px;display:flex;flex-direction:column;gap:20px}
+.nb-section{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.nb-header{
+  display:flex;align-items:center;gap:14px;padding:20px;cursor:pointer;
+  transition:background .2s;
+}
+.nb-header:hover{background:var(--surface2)}
+.nb-icon{font-size:1.8rem;width:44px;text-align:center;flex-shrink:0}
+.nb-header h2{font-size:1rem;font-weight:700}
+.nb-desc{font-size:.75rem;color:var(--muted);margin-top:3px}
+.toggle-btn{margin-left:auto;background:none;border:none;cursor:pointer;color:var(--muted);
+  width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  transition:background .2s,color .2s;flex-shrink:0}
+.toggle-btn:hover{background:rgba(124,110,247,.15);color:var(--accent)}
+.chevron{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2.5;
+  transition:transform .3s}
+.nb-body{padding:0 20px;max-height:0;overflow:hidden;transition:max-height .4s ease,padding .3s}
+.nb-body:not(.collapsed){max-height:99999px;padding:0 20px 20px}
+.nb-body.collapsed .chevron{transform:rotate(0deg)}
+.nb-section:not(.collapsed-section) .chevron{transform:rotate(180deg)}
+
+/* ── CODE CARDS ── */
+.code-card{background:var(--bg);border:1px solid var(--border);border-radius:12px;
+  margin-top:14px;overflow:hidden}
+.code-header{display:flex;align-items:center;justify-content:space-between;
+  padding:8px 14px;background:var(--surface2);border-bottom:1px solid var(--border)}
+.cell-label{font-size:.7rem;color:var(--muted);font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.copy-btn{background:none;border:1px solid var(--border);border-radius:6px;
+  cursor:pointer;color:var(--muted);padding:4px 8px;display:flex;align-items:center;gap:6px;
+  font-size:.72rem;font-weight:500;transition:border-color .2s,color .2s,background .2s}
+.copy-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(124,110,247,.1)}
+.copy-btn.copied{border-color:var(--green);color:var(--green)}
+pre{overflow-x:auto;padding:16px 18px;font-family:'JetBrains Mono',monospace;font-size:.8rem;
+  line-height:1.7;color:#cdd6f4}
+pre code{white-space:pre}
+
+/* ── FOOTER ── */
+footer{text-align:center;padding:20px;color:var(--muted);font-size:.75rem}
+
+/* ── COPY TOAST ── */
+.toast{position:fixed;bottom:30px;right:30px;background:var(--green);color:#fff;
+  padding:10px 18px;border-radius:10px;font-size:.82rem;font-weight:600;
+  opacity:0;transform:translateY(10px);transition:opacity .3s,transform .3s;pointer-events:none;z-index:999}
+.toast.show{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-badge">APCS LAB · Python Practicals</div>
+  <h1>Code Notebook Hub</h1>
+  <p>All lab notebooks in one place — browse &amp; copy any code snippet instantly.</p>
+  <div class="stats">
+    <div class="stat"><div class="stat-n">8</div><div class="stat-l">Notebooks</div></div>
+    <div class="stat"><div class="stat-n">Python</div><div class="stat-l">Language</div></div>
+    <div class="stat"><div class="stat-n">∞</div><div class="stat-l">Copy &amp; Paste</div></div>
+  </div>
+</div>
+
+<div class="link-grid">
+  
+      <a class="link-card" href="#1.ipynb">
+        <span class="lc-icon">🔢</span>
+        <div class="lc-info">
+          <span class="lc-title">Lab 1 – Number Series</span>
+          <span class="lc-desc">Even/Odd Series, Fibonacci, Reverse Number, Sum of Digits, Prime Series</span>
+        </div>
+        <svg class="lc-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      </a>
+      <a class="link-card" href="#2.ipynb">
+        <span class="lc-icon">🔀</span>
+        <div class="lc-info">
+          <span class="lc-title">Lab 2 – Conditional Statements</span>
+          <span class="lc-desc">Age check, Grade system, Driving licence, Positive/Negative, Discount, Login, Speed Zone</span>
+        </div>
+        <svg class="lc-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      </a>
+      <a class="link-card" href="#3.ipynb">
+        <span class="lc-icon">λ</span>
+        <div class="lc-info">
+          <span class="lc-title">Lab 3 – Functions & Lambdas</span>
+          <span class="lc-desc">Addition, Square, Area, Map +10, Sum of List, Power, Even/Odd, Factorial</span>
+        </div>
+        <svg class="lc-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      </a>
+      <a class="link-card" href="#4.ipynb">
+        <span class="lc-icon">📦</span>
+        <div class="lc-info">
+          <span class="lc-title">Lab 4 – Data Structures</span>
+          <span class="lc-desc">String, List, Tuple, Set, Dictionary operations</span>
+        </div>
+        <svg class="lc-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      </a>
+      <a class="link-card" href="#5.ipynb">
+        <span class="lc-icon">🔍</span>
+        <div class="lc-info">
+          <span class="lc-title">Lab 5 – Regular Expressions</span>
+          <span class="lc-desc">match, search, findall, sub, Email/Phone/Password validators</span>
+        </div>
+        <svg class="lc-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      </a>
+      <a class="link-card" href="#6.ipynb">
+        <span class="lc-icon">🏗️</span>
+        <div class="lc-info">
+          <span class="lc-title">Lab 6 – OOP & Inheritance</span>
+          <span class="lc-desc">Single & multi-level inheritance, polymorphism, method overriding</span>
+        </div>
+        <svg class="lc-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      </a>
+      <a class="link-card" href="#7.ipynb">
+        <span class="lc-icon">📂</span>
+        <div class="lc-info">
+          <span class="lc-title">Lab 7 – File Handling & Exceptions</span>
+          <span class="lc-desc">File read/write/append, ZeroDivisionError, ValueError, custom exceptions</span>
+        </div>
+        <svg class="lc-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      </a>
+      <a class="link-card" href="#8.ipynb">
+        <span class="lc-icon">📊</span>
+        <div class="lc-info">
+          <span class="lc-title">Lab 8 – Netflix Data Analysis</span>
+          <span class="lc-desc">Pandas, NumPy, Matplotlib – EDA on Netflix titles dataset</span>
+        </div>
+        <svg class="lc-arrow" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      </a>
+</div>
+
+<div class="divider">↓ All Notebooks</div>
+
+<div class="sections">
+  
+  <section class="nb-section" id="1.ipynb">
+    <div class="nb-header">
+      <span class="nb-icon">🔢</span>
+      <div>
+        <h2>Lab 1 – Number Series</h2>
+        <p class="nb-desc">Even/Odd Series, Fibonacci, Reverse Number, Sum of Digits, Prime Series</p>
+      </div>
+      <button class="toggle-btn" onclick="toggleSection('1.ipynb')">
+        <svg class="chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+    </div>
+    <div class="nb-body collapsed" id="body-1.ipynb">
+      
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 0</span>
+            <button class="copy-btn" onclick="copyCode('1.ipynb-0')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="1.ipynb-0"><code>#20240802042
+def even_series(n):
+    for i in range(2, n+1, 2):
+        print(i, end=&quot; &quot;)
+
+n = int(input(&quot;Enter range: &quot;))
+even_series(n)</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 1</span>
+            <button class="copy-btn" onclick="copyCode('1.ipynb-1')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="1.ipynb-1"><code>#20240802042
+def odd_series(n):
+    for i in range(1, n+1, 2):
+        print(i, end=&quot; &quot;)
+
+n = int(input(&quot;Enter range: &quot;))
+odd_series(n)</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 2</span>
+            <button class="copy-btn" onclick="copyCode('1.ipynb-2')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="1.ipynb-2"><code>#20240802042
+def fibonacci(n):
+    a, b = 0, 1
+    for i in range(n):
+        print(a, end=&quot; &quot;)
+        a, b = b, a + b
+
+n = int(input(&quot;Enter number of terms: &quot;))
+fibonacci(n)</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 3</span>
+            <button class="copy-btn" onclick="copyCode('1.ipynb-3')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="1.ipynb-3"><code>#20240802042
+def reverse_number(num):
+    rev = 0
+    while num &gt; 0:
+        rev = rev * 10 + num % 10
+        num //= 10
+    return rev
+
+num = int(input(&quot;Enter number: &quot;))
+print(&quot;Reversed number:&quot;, reverse_number(num))</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 4</span>
+            <button class="copy-btn" onclick="copyCode('1.ipynb-4')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="1.ipynb-4"><code>#20240802042
+def sum_of_digits(num):
+    total = 0
+    while num &gt; 0:
+        total += num % 10
+        num //= 10
+    return total
+
+num = int(input(&quot;Enter number: &quot;))
+print(&quot;Sum of digits:&quot;, sum_of_digits(num))</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 5</span>
+            <button class="copy-btn" onclick="copyCode('1.ipynb-5')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="1.ipynb-5"><code>#20240802042
+def prime_series(n):
+    for num in range(2, n+1):
+        is_prime = True
+        for i in range(2, num):
+            if num % i == 0:
+                is_prime = False
+                break
+        if is_prime:
+            print(num, end=&quot; &quot;)
+
+n = int(input(&quot;Enter range: &quot;))
+prime_series(n)</code></pre>
+        </div>
+    </div>
+  </section>
+  <section class="nb-section" id="2.ipynb">
+    <div class="nb-header">
+      <span class="nb-icon">🔀</span>
+      <div>
+        <h2>Lab 2 – Conditional Statements</h2>
+        <p class="nb-desc">Age check, Grade system, Driving licence, Positive/Negative, Discount, Login, Speed Zone</p>
+      </div>
+      <button class="toggle-btn" onclick="toggleSection('2.ipynb')">
+        <svg class="chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+    </div>
+    <div class="nb-body collapsed" id="body-2.ipynb">
+      
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 0</span>
+            <button class="copy-btn" onclick="copyCode('2.ipynb-0')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="2.ipynb-0"><code>#PRN:20240802050
+age = int(input(&quot;enter your age: &quot;))
+if age &gt;= 18:
+    print(&quot;you are eligible to vote&quot;)
+else:
+    print(&quot;you are not eligible to vote&quot;)</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 2</span>
+            <button class="copy-btn" onclick="copyCode('2.ipynb-2')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="2.ipynb-2"><code>#20240802050
+score = int(input(&quot;enter marks: &quot;))
+if score &gt;= 90:
+    print(&quot;Grade A&quot;)
+elif score &gt;= 80 and score &lt;= 89:
+    print(&quot;Grade B&quot;)
+elif score &gt;= 70 and score &lt;= 79:
+    print(&quot;Grade C&quot;)
+else:
+    print(&quot;Grade F&quot;)</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 3</span>
+            <button class="copy-btn" onclick="copyCode('2.ipynb-3')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="2.ipynb-3"><code>#20240802050
+age = int(input(&quot;enter your age: &quot;))
+DL = str(input(&quot;do you have driving licence Y/N: &quot;))
+if age &gt;= 18:
+    if DL == &quot;Y&quot;:
+        print(&quot;you are cleared to drive&quot;)
+    else:
+        print(&quot;cannot drive&quot;)
+else:
+    print(&quot;cannot drive&quot;)</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 4</span>
+            <button class="copy-btn" onclick="copyCode('2.ipynb-4')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="2.ipynb-4"><code>#20240802050
+num = int(input(&quot;enter a no: &quot;))
+if num &gt; 0:
+    print(&quot;positive num&quot;)
+elif num &lt; 0:
+    print(&quot;negative num&quot;)
+else:
+    print(&quot;zero&quot;)</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 5</span>
+            <button class="copy-btn" onclick="copyCode('2.ipynb-5')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="2.ipynb-5"><code>#20240802050
+def calculate_discount(member, amount):
+    if member == &quot;Y&quot;:
+        if amount &gt; 100:
+            discount = amount * 0.20
+            print(&quot;Discount =&quot;, discount)
+        else:
+            discount = amount * 0.10
+            print(&quot;Discount =&quot;, discount)
+    else:
+        print(&quot;No discount available for non-members&quot;)
+member = input(&quot;Are you a member? Y/N: &quot;)
+amount = int(input(&quot;Enter purchase amount: &quot;))
+calculate_discount(member, amount)</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 6</span>
+            <button class="copy-btn" onclick="copyCode('2.ipynb-6')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="2.ipynb-6"><code>#20240802039
+def calculate_discount(member, amount):
+    if member == &quot;Y&quot;:
+        if amount &gt; 100:
+            discount = amount * 0.20
+            print(&quot;Discount =&quot;, discount)
+        else:
+            discount = amount * 0.10
+            print(&quot;Discount =&quot;, discount)
+    else:
+        print(&quot;No discount available for non-members&quot;)
+member = input(&quot;Are you a member? Y/N: &quot;)
+amount = int(input(&quot;Enter purchase amount: &quot;))
+calculate_discount(member, amount)</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 7</span>
+            <button class="copy-btn" onclick="copyCode('2.ipynb-7')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="2.ipynb-7"><code>#20240802050
+username = str(input(&quot;enter username: &quot;))
+password = int(input(&quot;enter password: &quot;))
+if username == &quot;admin&quot; and password == 12345:
+    print(&quot;access granted&quot;)
+else:
+    print(&quot;access denied&quot;)</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 8</span>
+            <button class="copy-btn" onclick="copyCode('2.ipynb-8')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="2.ipynb-8"><code>#20240802050
+current_speed = int(input(&quot;enter speed: &quot;))
+is_school_zone = input(&quot;enter zone Y/N: &quot;)
+
+if current_speed &gt;= 20 and is_school_zone == &quot;Y&quot;:
+    print(&quot;slow down&quot;)
+elif current_speed &gt;= 60 and is_school_zone == &quot;N&quot;:
+    print(&quot;speeding warning&quot;)
+else:
+    print(&quot;speed ok&quot;)</code></pre>
+        </div>
+    </div>
+  </section>
+  <section class="nb-section" id="3.ipynb">
+    <div class="nb-header">
+      <span class="nb-icon">λ</span>
+      <div>
+        <h2>Lab 3 – Functions & Lambdas</h2>
+        <p class="nb-desc">Addition, Square, Area, Map +10, Sum of List, Power, Even/Odd, Factorial</p>
+      </div>
+      <button class="toggle-btn" onclick="toggleSection('3.ipynb')">
+        <svg class="chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+    </div>
+    <div class="nb-body collapsed" id="body-3.ipynb">
+      
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 0</span>
+            <button class="copy-btn" onclick="copyCode('3.ipynb-0')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="3.ipynb-0"><code>print(&quot;20240802042&quot;)
+def addition(a,b):
+  c=a+b
+  print(c)
+a=int(input(&quot;Enter two numbers:&quot;))
+b=int(input())
+addition(a,b)</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 1</span>
+            <button class="copy-btn" onclick="copyCode('3.ipynb-1')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="3.ipynb-1"><code>a=int(input(&quot;Enter two numbers:&quot;))
+b=int(input())
+add = lambda a, b: a + b
+print(add(a,b))</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 2</span>
+            <button class="copy-btn" onclick="copyCode('3.ipynb-2')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="3.ipynb-2"><code>print(&quot;20240802042&quot;)
+def square(n):
+  sq=n*n
+  print(sq)
+n=int(input(&quot;Enter a number:&quot;))
+square(n)</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 3</span>
+            <button class="copy-btn" onclick="copyCode('3.ipynb-3')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="3.ipynb-3"><code>print(&quot;20240802042&quot;)
+n=int(input(&quot;Enter a number:&quot;))
+sq = lambda n: n * n
+print(sq(n))</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 4</span>
+            <button class="copy-btn" onclick="copyCode('3.ipynb-4')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="3.ipynb-4"><code>print(&quot;20240802042&quot;)
+def area(l,b):
+  a=l*b
+  print(a)
+
+l=int(input(&quot;Enter length:&quot;))
+b=int(input(&quot;Enter breadth:&quot;))
+
+area(l,b)</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 5</span>
+            <button class="copy-btn" onclick="copyCode('3.ipynb-5')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="3.ipynb-5"><code>print(&quot;20240802042&quot;)
+l=int(input(&quot;Enter length:&quot;))
+b=int(input(&quot;Enter breadth:&quot;))
+area = lambda l, b: l * b
+print(area(l, b))</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 6</span>
+            <button class="copy-btn" onclick="copyCode('3.ipynb-6')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="3.ipynb-6"><code>print(&quot;20240802042&quot;)
+def num(list1):
+  list2=[ ]
+  for i in list1:
+    list2.append(i+10)
+  print(list2)
+
+list1=[1,2,3]
+num(list1)</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 7</span>
+            <button class="copy-btn" onclick="copyCode('3.ipynb-7')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="3.ipynb-7"><code>print(&quot;20240802042&quot;)
+lst = [1, 2, 3]
+result = list(map(lambda x: x + 10, lst))
+print(result)</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 8</span>
+            <button class="copy-btn" onclick="copyCode('3.ipynb-8')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="3.ipynb-8"><code>print(&quot;20240802042&quot;)
+def add(list3):
+  sum=0
+  for i in list3:
+    sum+=i
+  print(sum)
+
+list3=[1,2,3,4]
+add(list3)</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 9</span>
+            <button class="copy-btn" onclick="copyCode('3.ipynb-9')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="3.ipynb-9"><code>print(&quot;20240802042&quot;)
+def power(n,p):
+  c=n**p
+  print(c)
+
+n=int(input(&quot;Enter a number:&quot;))
+p=int(input(&quot;Enter power:&quot;))
+power(n,p)</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 10</span>
+            <button class="copy-btn" onclick="copyCode('3.ipynb-10')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="3.ipynb-10"><code>print(&quot;20240802042&quot;)
+a=int(input(&quot;Enter a number:&quot;))
+b=int(input(&quot;Enter power:&quot;))
+pow_num = lambda a, b: a ** b
+print(pow_num(a, b))</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 11</span>
+            <button class="copy-btn" onclick="copyCode('3.ipynb-11')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="3.ipynb-11"><code>print(&quot;20240802042&quot;)
+def evenodd(n):
+  if n%2==0:
+    print(&quot;Number is even&quot;)
+  else:
+    print(&quot;Number is odd&quot;)
+n=(int(input(&quot;Enter a number&quot;)))
+evenodd(n)</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 12</span>
+            <button class="copy-btn" onclick="copyCode('3.ipynb-12')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="3.ipynb-12"><code>print(&quot;20240802042&quot;)
+n=(int(input(&quot;Enter a number&quot;)))
+check = lambda n: &quot;Even&quot; if n % 2 == 0 else &quot;Odd&quot;
+print(check(n))</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 13</span>
+            <button class="copy-btn" onclick="copyCode('3.ipynb-13')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="3.ipynb-13"><code>print(&quot;20240802042&quot;)
+def factorial(n):
+  if n==0:
+    print(&quot;1&quot;)
+  else:
+    f=1
+    for i in range (1,n+1):
+      f*=i
+    print(f)
+n=(int(input(&quot;Enter a number:&quot;)))
+factorial(n)</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 14</span>
+            <button class="copy-btn" onclick="copyCode('3.ipynb-14')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="3.ipynb-14"><code>print(&quot;20240802042&quot;)
+n=(int(input(&quot;Enter a number&quot;)))
+fact = lambda n: 1 if n == 0 else n * fact(n - 1)
+print(fact(n))</code></pre>
+        </div>
+    </div>
+  </section>
+  <section class="nb-section" id="4.ipynb">
+    <div class="nb-header">
+      <span class="nb-icon">📦</span>
+      <div>
+        <h2>Lab 4 – Data Structures</h2>
+        <p class="nb-desc">String, List, Tuple, Set, Dictionary operations</p>
+      </div>
+      <button class="toggle-btn" onclick="toggleSection('4.ipynb')">
+        <svg class="chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+    </div>
+    <div class="nb-body collapsed" id="body-4.ipynb">
+      
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 1</span>
+            <button class="copy-btn" onclick="copyCode('4.ipynb-1')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="4.ipynb-1"><code>print(&quot;20240802042&quot;)
+s=&quot;apple&quot;
+vol=0
+con=0
+for i in s:
+    if i in ['a','e','i','o','u']:
+        vol+=1
+    else:
+        con+=1
+
+print(&quot;Vowels:&quot;,vol)
+print(&quot;Consonents:&quot;, con)</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 2</span>
+            <button class="copy-btn" onclick="copyCode('4.ipynb-2')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="4.ipynb-2"><code>print(&quot;20240802042&quot;)
+s=str(input(&quot;Enter a string:&quot;))
+s=s.lower()
+rs=s[::-1]
+if rs==s:
+    print(&quot;String is palindrome&quot;)
+else:
+    print(&quot;String is not palindrome&quot;)</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 3</span>
+            <button class="copy-btn" onclick="copyCode('4.ipynb-3')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="4.ipynb-3"><code>print(&quot;20240802042&quot;)
+s = &quot;apple&quot;
+
+for ch in set(s):
+    print(ch, &quot;:&quot;, s.count(ch))</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 5</span>
+            <button class="copy-btn" onclick="copyCode('4.ipynb-5')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="4.ipynb-5"><code>print(&quot;20240802042&quot;)
+numbers = [10, 5, 8, 20, 15]
+numbers = sorted(numbers)
+print(&quot;Second Smallest:&quot;, numbers[1])
+print(&quot;Second Largest:&quot;, numbers[-2])</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 6</span>
+            <button class="copy-btn" onclick="copyCode('4.ipynb-6')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="4.ipynb-6"><code>print(&quot;20240802042&quot;)
+numbers = [12, 45, 2, 41, 31, 10, 8, 6, 4, 15, 23, 70]
+even_numbers = []
+odd_numbers = []
+
+for num in numbers:
+    if num % 2 == 0:
+        even_numbers.append(num)
+    else:
+        odd_numbers.append(num)
+
+print(&quot;Original list:&quot;, numbers)
+print(&quot;Even numbers:&quot;, even_numbers)
+print(&quot;Odd numbers:&quot;, odd_numbers)</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 7</span>
+            <button class="copy-btn" onclick="copyCode('4.ipynb-7')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="4.ipynb-7"><code>print(&quot;20240802042&quot;)
+list1 = [10,2,56,8,78]
+list2 = [25,30,45,56,78]
+ml = list1 + list2
+mld = list(set(ml))
+print(&quot;List 1:&quot;, list1)
+print(&quot;List 2:&quot;, list2)
+print(&quot;Merged list (with duplicates):&quot;, ml)
+print(&quot;Merged list (without duplicates):&quot;, mld)</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 9</span>
+            <button class="copy-btn" onclick="copyCode('4.ipynb-9')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="4.ipynb-9"><code>print(&quot;20240802042&quot;)
+# 1. Create tuple
+t = (18, 35, 56, 78, 98)
+# 2. First and last element
+print(&quot;First:&quot;, t[0])
+print(&quot;Last:&quot;, t[-1])
+# 3. Count occurrence
+num = 56
+print(&quot;Count:&quot;, t.count(num))
+# 4. Length
+print(&quot;Length:&quot;, len(t))
+# 5. Convert tuple to list
+lst = list(t)
+print(&quot;List:&quot;, lst)
+# 6. Frequency of elements
+freq = {}
+for item in t:
+    freq[item] = freq.get(item, 0) + 1
+print(freq)
+# 7. Check unique elements
+if len(t) == len(set(t)):
+  print(&quot;All elements are unique&quot;)
+else:
+  print(&quot;Duplicates found&quot;)</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 11</span>
+            <button class="copy-btn" onclick="copyCode('4.ipynb-11')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="4.ipynb-11"><code>print(&quot;20240802042&quot;)
+# 1. Create set
+s = {18,25,34,42,56}
+# 2. Add element
+s.add(6)
+# 3. Remove element
+s.remove(34)
+# 4. Union
+s1 = {1,2,3}
+s2 = {3,4,5}
+print(&quot;Union:&quot;, s1.union(s2))
+# 5. Intersection
+print(&quot;Intersection:&quot;, s1.intersection(s2))
+# 6. Remove duplicates from list
+lst = [10,22,22,33,44,44]
+print(&quot;Unique:&quot;, list(set(lst)))
+# 7. Subset check
+a = {1,2}
+b = {1,2,3,4}
+print(&quot;Is subset:&quot;, a.issubset(b))
+# 8. Remove elements &gt; 10
+s = {5,12,7,20,3}
+s = {x for x in s if x &lt;= 10}
+print(s)
+# 9. Common in three sets
+a = {1,2,3,4}
+b = {2,3,5}
+c = {2,3,6}
+print(&quot;Common:&quot;, a &amp; b &amp; c)</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 13</span>
+            <button class="copy-btn" onclick="copyCode('4.ipynb-13')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="4.ipynb-13"><code>print(&quot;20240802042&quot;)
+# 1. Create dictionary
+students = {&quot;Shyam&quot;: 85, &quot;Ram&quot;: 90, &quot;Sneha&quot;: 88}
+# 2. Add new key-value
+students[&quot;Priya&quot;] = 92
+# 3. Update marks
+students[&quot;Shyam&quot;] = 95
+# 4. Delete key
+del students[&quot;Ram&quot;]
+# 5. Print keys and values
+print(&quot;Keys:&quot;, students.keys())
+print(&quot;Values:&quot;, students.values())
+# 6. Check key exists
+if &quot;Sneha&quot; in students:
+  print(&quot;Key exists&quot;)
+# 7. Student with highest marks
+highest = max(students, key=students.get)
+print(&quot;Topper:&quot;, highest)
+# 8. Word frequency
+sentence = input(&quot;Enter sentence: &quot;)
+words = sentence.split()
+freq = {}
+for word in words:
+    freq[word] = freq.get(word, 0) + 1
+print(freq)</code></pre>
+        </div>
+    </div>
+  </section>
+  <section class="nb-section" id="5.ipynb">
+    <div class="nb-header">
+      <span class="nb-icon">🔍</span>
+      <div>
+        <h2>Lab 5 – Regular Expressions</h2>
+        <p class="nb-desc">match, search, findall, sub, Email/Phone/Password validators</p>
+      </div>
+      <button class="toggle-btn" onclick="toggleSection('5.ipynb')">
+        <svg class="chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+    </div>
+    <div class="nb-body collapsed" id="body-5.ipynb">
+      
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 0</span>
+            <button class="copy-btn" onclick="copyCode('5.ipynb-0')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="5.ipynb-0"><code>print(&quot;20240802042&quot;)
+import re
+pattern = r&quot;hello&quot;
+text = &quot;hello world&quot;
+result = re.match(pattern, text)
+if result:
+  print(&quot;Match found&quot;)</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 1</span>
+            <button class="copy-btn" onclick="copyCode('5.ipynb-1')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="5.ipynb-1"><code>print(&quot;20240802042&quot;)
+result = re.search(r&quot;world&quot;, &quot;hello world&quot;)
+print(result.group())</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 2</span>
+            <button class="copy-btn" onclick="copyCode('5.ipynb-2')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="5.ipynb-2"><code>print(&quot;20240802042&quot;)
+text = &quot;hen ten men pen&quot;
+result = re.findall(r&quot;.en&quot;, text)
+print(result)</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 3</span>
+            <button class="copy-btn" onclick="copyCode('5.ipynb-3')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="5.ipynb-3"><code>print(&quot;20240802042&quot;)
+text = &quot;I like grapes&quot;
+result = re.sub(r&quot;grapes&quot;, &quot;mango&quot;, text)
+print(result)</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 4</span>
+            <button class="copy-btn" onclick="copyCode('5.ipynb-4')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="5.ipynb-4"><code>print(&quot;20240802042&quot;)
+import re
+email = &quot;sarthakkharche06@gmail.com&quot;
+pattern = r&quot;^[\w\.-]+@[\w\.-]+\.\w+$&quot;
+if re.match(pattern, email):
+  print(&quot;Valid Email&quot;)
+else:
+  print(&quot;Invalid Email&quot;)</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 5</span>
+            <button class="copy-btn" onclick="copyCode('5.ipynb-5')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="5.ipynb-5"><code>print(&quot;20240802042&quot;)
+import re
+phone = &quot;9175752375&quot;
+pattern = r&quot;^\d{10}$&quot;
+if re.match(pattern, phone):
+  print(&quot;Valid Phone Number&quot;)
+else:
+  print(&quot;Invalid Phone Number&quot;)</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 6</span>
+            <button class="copy-btn" onclick="copyCode('5.ipynb-6')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="5.ipynb-6"><code>print(&quot;20240802042&quot;)
+import re
+password = &quot;Abc@12345&quot;
+pattern = r&quot;^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$&quot;
+if re.match(pattern, password):
+  print(&quot;Strong Password&quot;)
+else:
+  print(&quot;Weak Password&quot;)</code></pre>
+        </div>
+    </div>
+  </section>
+  <section class="nb-section" id="6.ipynb">
+    <div class="nb-header">
+      <span class="nb-icon">🏗️</span>
+      <div>
+        <h2>Lab 6 – OOP & Inheritance</h2>
+        <p class="nb-desc">Single & multi-level inheritance, polymorphism, method overriding</p>
+      </div>
+      <button class="toggle-btn" onclick="toggleSection('6.ipynb')">
+        <svg class="chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+    </div>
+    <div class="nb-body collapsed" id="body-6.ipynb">
+      
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 0</span>
+            <button class="copy-btn" onclick="copyCode('6.ipynb-0')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="6.ipynb-0"><code>print(&quot;20240802042&quot;)
+class Animal:
+  def speak(self):
+    print(&quot;Animal makes a sound&quot;)
+class Dog(Animal):
+  def bark(self):
+    print(&quot;Dog barks&quot;)
+d = Dog()
+d.speak()
+d.bark()</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 1</span>
+            <button class="copy-btn" onclick="copyCode('6.ipynb-1')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="6.ipynb-1"><code>print(&quot;20240802042&quot;)
+class Animal:
+  def speak(self):
+    print(&quot;Animal speaks&quot;)
+class Cat(Animal):
+  def speak(self):
+    print(&quot;Cat meows&quot;)
+c = Cat()
+c.speak()</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 2</span>
+            <button class="copy-btn" onclick="copyCode('6.ipynb-2')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="6.ipynb-2"><code>print(&quot;20240802042&quot;)
+class Animal:
+  def __init__(self):
+    print(&quot;Animal Constructor&quot;)
+class Dog(Animal):
+  def __init__(self):
+    super().__init__()
+    print(&quot;Dog Constructor&quot;)
+d = Dog()</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 3</span>
+            <button class="copy-btn" onclick="copyCode('6.ipynb-3')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="6.ipynb-3"><code>print(&quot;20240802042&quot;)
+class Animal:
+  def eat(self):
+    print(&quot;Animal eats food&quot;)
+class Dog(Animal):
+  def bark(self):
+    print(&quot;Dog barks&quot;)
+class Puppy(Dog):
+  def weep(self):
+    print(&quot;Puppy weeps&quot;)
+p = Puppy()
+p.eat()
+p.bark()
+p.weep()</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 4</span>
+            <button class="copy-btn" onclick="copyCode('6.ipynb-4')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="6.ipynb-4"><code>print(&quot;20240802042&quot;)
+class Bird:
+  def fly(self):
+    print(&quot;Bird can fly&quot;)
+class Sparrow(Bird):
+  def fly(self):
+    print(&quot;Sparrow flies fast&quot;)
+class Penguin(Bird):
+  def fly(self):
+    print(&quot;Penguin cannot fly&quot;)
+birds = [Sparrow(), Penguin()]
+for b in birds:
+  b.fly()</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 5</span>
+            <button class="copy-btn" onclick="copyCode('6.ipynb-5')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="6.ipynb-5"><code>print(&quot;20240802042&quot;)
+class Dog:
+  def sound(self):
+    print(&quot;Bark&quot;)
+class Cat:
+  def sound(self):
+    print(&quot;Meow&quot;)
+def make_sound(animal):
+  animal.sound()
+make_sound(Dog())
+make_sound(Cat())</code></pre>
+        </div>
+    </div>
+  </section>
+  <section class="nb-section" id="7.ipynb">
+    <div class="nb-header">
+      <span class="nb-icon">📂</span>
+      <div>
+        <h2>Lab 7 – File Handling & Exceptions</h2>
+        <p class="nb-desc">File read/write/append, ZeroDivisionError, ValueError, custom exceptions</p>
+      </div>
+      <button class="toggle-btn" onclick="toggleSection('7.ipynb')">
+        <svg class="chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+    </div>
+    <div class="nb-body collapsed" id="body-7.ipynb">
+      
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 0</span>
+            <button class="copy-btn" onclick="copyCode('7.ipynb-0')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="7.ipynb-0"><code>print(&quot;20240802042&quot;)
+with open(&quot;example.txt&quot;,&quot;w&quot;) as file:
+  file.write(&quot;Hello everyone......\n&quot;)
+print(&quot;File has been created and initial text written&quot;)
+with open(&quot;example.txt&quot;,&quot;a&quot;) as file:
+  file.write(&quot;How are you??\n&quot;)
+print(&quot;New line successfully appended&quot;)
+print(&quot;\n File Content Output&quot;)
+with open(&quot;example.txt&quot;,&quot;r&quot;) as file:
+  content=file.read()
+  print(content)</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 1</span>
+            <button class="copy-btn" onclick="copyCode('7.ipynb-1')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="7.ipynb-1"><code>print(&quot;20240802042&quot;)
+try:
+  a=int(input(&quot;Enter numberator:&quot;))
+  b=int(input(&quot;Enter denominator:&quot;))
+  result=a/b
+  print(&quot;Final Ouput:&quot;, result)
+except ZeroDivisionError:
+  print(&quot;Error: Division by zero is not allowed.&quot;)
+except ValueError:
+  print(&quot;Error: Invalid input. Please enter valid numbers.&quot;)</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 2</span>
+            <button class="copy-btn" onclick="copyCode('7.ipynb-2')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="7.ipynb-2"><code>print(&quot;20240802042&quot;)
+try:
+  data=input(&quot;Enter a number:&quot;)
+  num=int(data)
+  print(f&quot;Your Input: {num}&quot;)
+except ValueError:
+  print(&quot;Error: Invalid input. Please enter a valid number.&quot;)
+except Exception as e:
+  print(f&quot;An error occurred: {e}&quot;)</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 3</span>
+            <button class="copy-btn" onclick="copyCode('7.ipynb-3')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="7.ipynb-3"><code>print(&quot;20240802042&quot;)
+try:
+  num_str=input(&quot;Enter a number to double it:&quot;)
+  num=int(num_str)
+except ValueError:
+  print(&quot;Error: Non-numeric imput provided&quot;)
+else:
+  print(&quot;Double of that value is&quot;, num*2)
+finally:
+  print(&quot;Closing the exception handling loop&quot;)</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 4</span>
+            <button class="copy-btn" onclick="copyCode('7.ipynb-4')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="7.ipynb-4"><code>print(&quot;20240802042&quot;)
+def check_age(age):
+  if age &lt; 18:
+    raise ValueError(&quot;Age must be 18 or above&quot;)
+  return &quot;Eligible for registration&quot;
+try:
+  user_age=int(input(&quot;Enter your age:&quot;))
+  result=check_age(user_age)
+  print(result)
+except ValueError as e:
+  print(f&quot;Error:&quot;, e)</code></pre>
+        </div>
+    </div>
+  </section>
+  <section class="nb-section" id="8.ipynb">
+    <div class="nb-header">
+      <span class="nb-icon">📊</span>
+      <div>
+        <h2>Lab 8 – Netflix Data Analysis</h2>
+        <p class="nb-desc">Pandas, NumPy, Matplotlib – EDA on Netflix titles dataset</p>
+      </div>
+      <button class="toggle-btn" onclick="toggleSection('8.ipynb')">
+        <svg class="chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+    </div>
+    <div class="nb-body collapsed" id="body-8.ipynb">
+      
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 0</span>
+            <button class="copy-btn" onclick="copyCode('8.ipynb-0')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="8.ipynb-0"><code>import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 1</span>
+            <button class="copy-btn" onclick="copyCode('8.ipynb-1')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="8.ipynb-1"><code>data=pd.read_csv(&quot;/content/netflix_titles.csv&quot;)
+print(data)</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 2</span>
+            <button class="copy-btn" onclick="copyCode('8.ipynb-2')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="8.ipynb-2"><code>data.describe()</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 3</span>
+            <button class="copy-btn" onclick="copyCode('8.ipynb-3')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="8.ipynb-3"><code>data.info()</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 4</span>
+            <button class="copy-btn" onclick="copyCode('8.ipynb-4')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="8.ipynb-4"><code>data.head()</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 5</span>
+            <button class="copy-btn" onclick="copyCode('8.ipynb-5')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="8.ipynb-5"><code>data.tail()</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 6</span>
+            <button class="copy-btn" onclick="copyCode('8.ipynb-6')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="8.ipynb-6"><code>#20240802042
+data['type'].value_counts().plot(kind='bar')
+plt.title(&quot;Movies vs TV Shows&quot;)
+plt.xlabel(&quot;Type&quot;)
+plt.ylabel(&quot;Count&quot;)
+plt.show()</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 7</span>
+            <button class="copy-btn" onclick="copyCode('8.ipynb-7')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="8.ipynb-7"><code>#20240802042
+data['date_added'] = pd.to_datetime(data['date_added'], errors='coerce')
+data['year_added'] = data['date_added'].dt.year
+data['year_added'].value_counts().sort_index().plot(kind='line')
+plt.title(&quot;Content Added Over Years&quot;)
+plt.xlabel(&quot;Year&quot;)
+plt.ylabel(&quot;Count&quot;)
+plt.show()</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 8</span>
+            <button class="copy-btn" onclick="copyCode('8.ipynb-8')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="8.ipynb-8"><code>#20240802042
+data['type'].value_counts().plot(kind='pie', autopct='%1.1f%%')
+plt.title(&quot;Percentage of Movies vs TV Shows&quot;)
+plt.ylabel(&quot;&quot;)
+plt.show()</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="cell-label">Cell 9</span>
+            <button class="copy-btn" onclick="copyCode('8.ipynb-9')" title="Copy">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+          <pre id="8.ipynb-9"><code>#20240802042
+movies = data[data['type'] == 'Movie']
+movies['duration'] = movies['duration'].str.replace(' min', '')
+movies['duration'] = pd.to_numeric(movies['duration'], errors='coerce')
+movies['duration'].plot(kind='hist', bins=20)
+plt.title(&quot;Movie Duration Distribution&quot;)
+plt.xlabel(&quot;Duration (minutes)&quot;)
+plt.ylabel(&quot;Frequency&quot;)
+plt.show()</code></pre>
+        </div>
+    </div>
+  </section>
+</div>
+
+<footer>Made with 💜 · APCS Lab</footer>
+<div class="toast" id="toast">✅ Copied to clipboard!</div>
+
+<script>
+function toggleSection(id) {
+  const body = document.getElementById('body-' + id);
+  const sec  = body.closest('.nb-section');
+  body.classList.toggle('collapsed');
+  sec.classList.toggle('collapsed-section');
+}
+
+function copyCode(id) {
+  const pre  = document.getElementById(id);
+  const text = pre.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = pre.previousElementSibling.querySelector('.copy-btn');
+    btn.classList.add('copied');
+    btn.innerHTML = '<svg viewBox="0 0 24 24"><polyline points="20 6 9 12 4 12"/><path d="M9 12L4 17"/></svg> Copied!';
+    showToast();
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = '<svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+    }, 2000);
+  });
+}
+
+function showToast() {
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// All sections start collapsed
+document.querySelectorAll('.nb-body').forEach(b => b.classList.add('collapsed'));
+document.querySelectorAll('.nb-section').forEach(s => s.classList.add('collapsed-section'));
+
+// Smooth scroll to section when link card clicked
+document.querySelectorAll('.link-card').forEach(card => {
+  card.addEventListener('click', e => {
+    const href = card.getAttribute('href');
+    const id   = href.replace('#','');
+    const body = document.getElementById('body-' + id);
+    const sec  = body.closest('.nb-section');
+    if (body.classList.contains('collapsed')) {
+      body.classList.remove('collapsed');
+      sec.classList.remove('collapsed-section');
+    }
+  });
+});
+</script>
+</body>
+</html>
